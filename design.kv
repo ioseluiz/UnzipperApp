@@ -1,0 +1,129 @@
+<WindowManager>:
+    InterfaceWindow:
+    FileWindow:
+    FolderWindow:
+
+<InterfaceWindow>:
+    id: my_interface
+    name: "main_window"
+    BoxLayout:
+        
+        orientation: 'vertical'
+        size: root.width, root.height
+        padding: 50
+        spacing: 20
+        MDGridLayout:
+            rows: 2
+            cols: 2
+            row_force_default: True
+            row_default_height: 40
+            halign:'center'
+            pos_hint: {'x': .1}
+            size_hint_x: .8
+            Label:
+                text: 'Select  a file for unzipping:'
+                width: 300
+                size_hint_x: None
+                halign: 'left'
+                # font_size: 20
+                color:  1,0,1,1
+            MDRoundFlatIconButton:
+                text: "Browse File"
+                icon: "file"
+                on_release:
+                    app.root.current = "filewindow"
+                    root.manager.transition.direction = "left"
+            Label:
+                id: file_path
+                text: 'File Path:'
+                width: 300
+                size_hint_x: None
+                halign: 'left'
+                # font_size: 20
+                color:  1,0,1,1
+                
+        MDGridLayout:
+            rows: 2
+            cols: 2
+            row_force_default: True
+            row_default_height: 40
+            halign:'center'
+            pos_hint: {'x': .1}
+            size_hint_x: .8
+            Label:
+                text: 'Select folder to store file contents:'
+                width: 300
+                size_hint_x: None
+                # font_size: 20
+                color: 1,0,1,1
+            MDRoundFlatIconButton:
+                text: "Browse Folder"
+                icon: "folder"
+                on_release:
+                    app.root.current = "folderwindow"
+                    root.manager.transition.direction = "left"
+            Label:
+                id: folder_path
+                text: 'Folder Path:'
+                width: 300
+                size_hint_x: None
+                halign: 'left'
+                # font_size: 20
+                color:  1,0,1,1
+        Label:
+            id: my_label
+            text: "0% Progress"
+            color:  1,0,1,1
+        ProgressBar:
+            id: my_progress_bar
+            min: 0
+            max: 1
+            pos_hint: {'x': .1}
+            size_hint_x: .8
+                
+        Button:
+            text: 'Start'
+            on_press: root.unzip_files()
+
+
+<FileWindow>:
+    id: my_file_window
+    name: "filewindow"
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+        Label:
+            text: "Select the file for unzipping:"
+            font_size: 32
+            color: 1,0,1,1
+        FileChooserIconView:
+            id: filechooser
+            on_selection: my_file_window.selected(filechooser.selection)
+        Button:
+            text: "OK"
+            font_size: 32
+            on_release:
+                app.root.current = "main_window"
+                root.manager.transition.direction = "left"
+
+<FolderWindow>:
+    id: my_folder_window
+    name: "folderwindow"
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+        Label:
+            text: "Select the destination for folder contents"
+            font_size: 32
+            color: 1,0,1,1
+        FileChooserIconView:
+            id: filechooser
+            dirselect: True
+        Button:
+            text: "OK"
+            font_size: 32
+            on_release:
+                app.root.current = "main_window"
+                root.manager.transition.direction = "right"
+
+    
