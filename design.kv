@@ -12,6 +12,16 @@
         size: root.width, root.height
         padding: 50
         spacing: 20
+        Label:
+            text: "File Selection"
+            font_size: 24
+            color: 1,0,1,1
+            size_hint_x: None
+            halign: 'center'
+            pos_hint: {'x': .1}
+            size_hint_x: .8
+        CustomDropDown:
+            id: dropdown
         MDGridLayout:
             rows: 2
             cols: 2
@@ -20,6 +30,7 @@
             halign:'center'
             pos_hint: {'x': .1}
             size_hint_x: .8
+            
             Label:
                 text: 'Select  a file for unzipping:'
                 width: 300
@@ -31,6 +42,7 @@
                 text: "Browse File"
                 icon: "file"
                 on_release:
+                    my_interface.update_file_drive()
                     app.root.current = "filewindow"
                     root.manager.transition.direction = "left"
             Label:
@@ -41,6 +53,16 @@
                 halign: 'left'
                 # font_size: 20
                 color:  1,0,1,1
+        Label:
+            text: "Destination Folder Selection"
+            font_size: 24
+            color: 1,0,1,1
+            size_hint_x: None
+            halign: 'center'
+            pos_hint: {'x': .1}
+            size_hint_x: .8
+        CustomDropDown:
+            id: dropdown_folder
                 
         MDGridLayout:
             rows: 2
@@ -60,8 +82,11 @@
                 text: "Browse Folder"
                 icon: "folder"
                 on_release:
+                    my_interface.update_folder_drive()
                     app.root.current = "folderwindow"
                     root.manager.transition.direction = "left"
+                    
+                    
             Label:
                 id: folder_path
                 text: 'Folder Path:'
@@ -92,13 +117,17 @@
     BoxLayout:
         orientation: 'vertical'
         size: root.width, root.height
+        
         Label:
             text: "Select the file for unzipping:"
             font_size: 32
             color: 1,0,1,1
         FileChooserIconView:
             id: filechooser
+            path: "W:\\"
+            # path: my_file_window.get_main_button_text()
             on_selection: my_file_window.selected(filechooser.selection)
+            dirselect: False
         Button:
             text: "OK"
             font_size: 32
@@ -119,11 +148,14 @@
         FileChooserIconView:
             id: filechooser
             dirselect: True
+            on_selection: my_folder_window.selected(filechooser.selection)
         Button:
             text: "OK"
             font_size: 32
             on_release:
                 app.root.current = "main_window"
                 root.manager.transition.direction = "right"
+
+
 
     
