@@ -6,17 +6,24 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivy.clock import Clock
 from time import sleep
+from unzip import get_file_info, extract_file
 import threading
 import os
 import utils
+from kivy.core.window import Window
+import os
+
 
 
 # Designate our .kv design file
 root_folder = os.getcwd()
 
 
+
+
 global current
 current = 0
+
 
 class CustomDropDown(Button):
     def __init__(self, **kwargs):
@@ -43,7 +50,8 @@ class InterfaceWindow(Screen):
         print("Button Pressed!")
         thread_button = threading.Thread(target=self.update_progress)
         thread_button.start()
-        Clock.schedule_interval(self.get_fromthread, 1)
+        
+        self.schedule = Clock.schedule_interval(self.get_fromthread, 1)
 
     def update_file_drive(self):
         print("Cambio de Path en filechooser")
@@ -64,6 +72,49 @@ class InterfaceWindow(Screen):
             print("Hay error en cambio de path")
 
 
+    def update_progress(self):
+        # Reset progress bar
+        self.ids.my_progress_bar.value = 0
+        
+        # Read location of files and folder data
+        file_for_unzip = self.ids.file_path.text
+        file_for_unzip = file_for_unzip.replace("File Path: ","")
+        destination_folder = self.ids.folder_path.text
+        destination_folder = destination_folder.replace("Folder Path: ","")
+        print(file_for_unzip)
+        print(destination_folder)
+
+        # Get list of files inside the zip file
+        if file_for_unzip[-4:] == ".zip":
+            list_of_files = get_file_info(file_for_unzip)
+            print(list_of_files)
+
+        print("thread_button started...")
+        global current
+        qty_files = len(list_of_files)
+        list_test = [x for x in range(0,qty_files)]
+        for file in list_of_files:
+            # Grab the current progress bar value
+            current = self.ids.my_progress_bar.value
+            # Unzip file and copy in the destination folder
+            extract_file(file_for_unzip, destination_folder, file)
+            # Increment value
+            current += 1/qty_files
+            # print(current)
+            # Update the progress bar
+            sleep(1)
+        print("thread_button_completed...")
+        self.schedule.cancel()
+        current = 0
+
+        return
+            
+    def get_fromthread(self, *args):
+        print(current)
+        self.ids.my_label.text = f"{round(current * 100,0)} % Progress"
+        self.ids.my_progress_bar.value = current
+
+
 class FileWindow(Screen):
   
     def selected(self, filename):
@@ -75,11 +126,6 @@ class FileWindow(Screen):
             ref_interface_screen.ids.file_path.text = f"File Path: {filename[0]}"
         except:
             pass
-
-    # def get_main_button_text(self):
-    #     ref_interface_screen = self.manager.get_screen("main_window")
-    #     print(ref_interface_screen)
-    #     return ref_interface_screen.ids.dropdown.text
 
 class FolderWindow(Screen):
     def selected(self, filename):
@@ -106,23 +152,9 @@ class UnzipperApp(MDApp):
 
         return sm
        
-    def update_progress(self):
-        print("thread_button started...")
-        global current
-        for i in range(1,11):
-            # Grab the current progress bar value
-            current = self.ids.my_progress_bar.value
-            # Increment value
-            current += i/10
-            # print(current)
-            # Update the progress bar
-            sleep(1)
-        print("thread_button_completed...")
-            
-    def get_fromthread(self, *args):
-        print(current)
-        self.ids.my_label.text = f"{round(current,2)}"
-        self.ids.my_progress_bar.value = current
+    
         
 if __name__ == "__main__":
+    # Kivy Window Size
+    Window.size = (700, 770)
     thread_main = threading.Thread(target=UnzipperApp().run())
